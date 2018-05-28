@@ -6,3 +6,14 @@ https://en.wikipedia.org/wiki/Bicubic_interpolation
 
 ## dependency
 openframeworks 0.10.0
+
+## sample code
+
+```
+
+// sample normalized u, v
+// from X_SIZE, Y_SIZE data table
+// data access function by std::function(float(int x, int y)) 
+float value = bicubic_2d(u, v, X_SIZE, Y_SIZE, [&](int x, int y) { return image[y][x]; });
+
+```

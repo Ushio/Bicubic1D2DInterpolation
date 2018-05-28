@@ -92,20 +92,20 @@ void ofApp::draw() {
 	}
 	mesh.draw();
 #else
-	const int XDIM = 6;
-	const int YDIM = 6;
+	const int X_SIZE = 6;
+	const int Y_SIZE = 6;
 
 	rt::Xor random;
-	float image[YDIM][XDIM];
-	for (int z = 0; z < YDIM; ++z) {
-		for (int x = 0; x < XDIM; ++x) {
+	float image[Y_SIZE][X_SIZE];
+	for (int z = 0; z < Y_SIZE; ++z) {
+		for (int x = 0; x < X_SIZE; ++x) {
 			image[z][x] = random.uniformf();
 		}
 	}
 
 	ofSetColor(255);
-	for (int z = 0; z < YDIM; ++z) {
-		for (int x = 0; x < XDIM; ++x) {
+	for (int z = 0; z < Y_SIZE; ++z) {
+		for (int x = 0; x < X_SIZE; ++x) {
 			ofDrawSphere(x, image[z][x], z, 0.05f);
 		}
 	}
@@ -120,8 +120,8 @@ void ofApp::draw() {
 		for (int xi = 0; xi < N; ++xi) {
 			float x = ofMap(xi, 0, N - 1, -0.5f, 1.5f);
 
-			float value = bicubic_2d(x, y, XDIM, YDIM, [&](int x, int y) { return image[y][x]; });
-			mesh.addVertex(glm::vec3(x * (XDIM - 1), value, y * (YDIM - 1)));
+			float value = bicubic_2d(x, y, X_SIZE, Y_SIZE, [&](int x, int y) { return image[y][x]; });
+			mesh.addVertex(glm::vec3(x * (X_SIZE - 1), value, y * (Y_SIZE - 1)));
 		}
 	}
 	mesh.draw();
