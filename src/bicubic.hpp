@@ -1,23 +1,47 @@
-#pragma once
+﻿#pragma once
 
 #include <functional>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
-inline float bicubic_kernel(float t, float tt, float ttt, float f0, float f1, float f2, float f3) {
-	glm::mat4 m = {
-		0.0f, -1.0f, 2.0f, -1.0f,
-		2.0f, 0.0f, -5.0f, 3.0f,
-		0.0f, 1.0f, 4.0f, -3.0f,
-		0.0f, 0.0f, -1.0f, 1.0f
-	};
-	return 0.5f * glm::dot(glm::vec4(1.0f, t, tt, ttt), m * glm::vec4(f0, f1, f2, f3));
+// naive
+//inline float bicubic_kernel(float t, float tt, float ttt, float f0, float f1, float f2, float f3) {
+//	glm::mat4 m = {
+//		0.0f, -1.0f, 2.0f, -1.0f,
+//		2.0f, 0.0f, -5.0f, 3.0f,
+//		0.0f, 1.0f, 4.0f, -3.0f,
+//		0.0f, 0.0f, -1.0f, 1.0f
+//	};
+//	return 0.5f * glm::dot(glm::vec4(1.0f, t, tt, ttt), m * glm::vec4(f0, f1, f2, f3));
+//}
+
+
+// generic
+template <class T, class Real>
+inline T bicubic_kernel(Real t, Real tt, Real ttt, T f0, T f1, T f2, T f3) {
+	auto a = Real(2.0) * f1;
+	auto b = -f0 + f2;
+	auto c = Real(2.0) * f0 - Real(5.0) * f1 + Real(4.0) * f2 - f3;
+	auto d = -f0 + Real(3.0) * f1 - Real(3.0) * f2 + f3;
+
+	return 0.5f * (a + t * b + tt * c + ttt * d);
 }
-inline float bicubic_kernel(float t, float f0, float f1, float f2, float f3) {
-	float tt = t * t;
-	float ttt = tt * t;
+
+// naive
+//inline float bicubic_kernel(float t, float f0, float f1, float f2, float f3) {
+//	float tt = t * t;
+//	float ttt = tt * t;
+//	return bicubic_kernel(t, tt, ttt, f0, f1, f2, f3);
+//}
+
+// generic
+template <class T, class Real>
+inline T bicubic_kernel(Real t, T f0, T f1, T f2, T f3) {
+	auto tt = t * t;
+	auto ttt = tt * t;
 	return bicubic_kernel(t, tt, ttt, f0, f1, f2, f3);
 }
+
 
 // f(0.0) = sample(0)
 // f(1.0) = sample(size - 1)
@@ -36,15 +60,16 @@ inline float bicubic_1d(float x /* 0.0 => 1.0 */, int size, std::function<float(
 	return bicubic_kernel(t, values[0], values[1], values[2], values[3]);
 }
 
-inline float bicubic_2d(float x /* 0.0 => 1.0 */, float y /* 0.0 => 1.0 */, int sizex, int sizey, std::function<float(int, int)> sample) {
-	float index_xf = x * (sizex - 1);
-	float index_yf = y * (sizey - 1);
+template <class T, class Real>
+inline T bicubic_2d(Real x /* 0.0 => 1.0 */, Real y /* 0.0 => 1.0 */, int sizex, int sizey, std::function<T(int, int)> sample) {
+	Real index_xf = x * (sizex - 1);
+	Real index_yf = y * (sizey - 1);
 	int index1x = (int)std::floor(index_xf);
 	int index1y = (int)std::floor(index_yf);
-	float tx = index_xf - index1x;
-	float ty = index_yf - index1y;
+	Real tx = index_xf - index1x;
+	Real ty = index_yf - index1y;
 
-	float values[4][4];
+	T values[4][4];
 	for (int y = 0; y < 4; ++y) {
 		int yi = index1y - 1 + y;
 		yi = glm::clamp(yi, 0, sizey - 1);
@@ -55,8 +80,8 @@ inline float bicubic_2d(float x /* 0.0 => 1.0 */, float y /* 0.0 => 1.0 */, int 
 		}
 	}
 
-	float ttx = tx * tx;
-	float tttx = ttx * tx;
+	Real ttx = tx * tx;
+	Real tttx = ttx * tx;
 	return bicubic_kernel(ty,
 		bicubic_kernel(tx, ttx, tttx, values[0][0], values[0][1], values[0][2], values[0][3]),
 		bicubic_kernel(tx, ttx, tttx, values[1][0], values[1][1], values[1][2], values[1][3]),

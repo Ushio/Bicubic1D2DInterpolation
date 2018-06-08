@@ -120,8 +120,8 @@ void ofApp::draw() {
 		for (int xi = 0; xi < N; ++xi) {
 			float x = ofMap(xi, 0, N - 1, -0.5f, 1.5f);
 
-			float value = bicubic_2d(x, y, X_SIZE, Y_SIZE, [&](int x, int y) { return image[y][x]; });
-			mesh.addVertex(glm::vec3(x * (X_SIZE - 1), value, y * (Y_SIZE - 1)));
+			glm::vec3 value = bicubic_2d<glm::vec3, float>(x, y, X_SIZE, Y_SIZE, [&](int x, int y) { return glm::vec3(0.0f, image[y][x], 0.0f); });
+			mesh.addVertex(glm::vec3(x * (X_SIZE - 1), value.y, y * (Y_SIZE - 1)));
 		}
 	}
 	mesh.draw();
