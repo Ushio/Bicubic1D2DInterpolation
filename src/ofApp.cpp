@@ -87,7 +87,7 @@ void ofApp::draw() {
 	int N = 1000; 
 	for (int i = 0; i < N; ++i) {
 		float x = ofMap(i, 0, N - 1, -0.2f, 1.2f);
-		float value = bicubic_1d(x, 4, [&](int x) { return image[x]; });
+		float value = bicubic_1d<float, float>(x, 4, [&](int x) { return image[x]; });
 		mesh.addVertex(glm::vec3(x * 3, value, 0.0f));
 	}
 	mesh.draw();
