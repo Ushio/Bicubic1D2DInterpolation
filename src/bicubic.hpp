@@ -24,7 +24,7 @@ inline T bicubic_kernel(Real t, Real tt, Real ttt, T f0, T f1, T f2, T f3) {
 	auto c = Real(2.0) * f0 - Real(5.0) * f1 + Real(4.0) * f2 - f3;
 	auto d = -f0 + Real(3.0) * f1 - Real(3.0) * f2 + f3;
 
-	return 0.5f * (a + t * b + tt * c + ttt * d);
+	return Real(0.5) * (a + t * b + tt * c + ttt * d);
 }
 
 // naive
